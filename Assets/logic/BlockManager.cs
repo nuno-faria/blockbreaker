@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class BlockManager : MonoBehaviour {
 
     public Text hpText;
+    public AudioClip hitClip;
     private int hp;
 
 	void Awake () {
@@ -20,6 +21,8 @@ public class BlockManager : MonoBehaviour {
 
     private void OnCollisionEnter2D(Collision2D collision) {
         if (collision.collider.tag == "ball") {
+            if (GameManager.sound)
+                AudioSource.PlayClipAtPoint(hitClip, new Vector2(0, 0), 0.4f);
             hp--;
             if (hp == 0) {
                 GameManager.removeBlock(this.gameObject);
@@ -27,7 +30,7 @@ public class BlockManager : MonoBehaviour {
             }
             else {
                 hpText.text = hp.ToString();
-                this.GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp / 100f, 0.92f), 1f, 1f);
+                this.GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp / 200f, 0.92f), 1f, 1f);
             }
         }
     }

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameOverButton : MonoBehaviour {
+public class PlayGame : MonoBehaviour {
 
     void OnMouseDown() {
-        SceneManager.LoadScene("menuScene");    
+        SceneManager.LoadScene("gameScene");
     }
 }

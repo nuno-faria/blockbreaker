@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class MouseAreaManager : MonoBehaviour {
 
-    public Rigidbody2D ball;
+    public static Vector2 ballCenter;
     public LineRenderer lr;
 
     void Start() {
@@ -14,12 +14,12 @@ public class MouseAreaManager : MonoBehaviour {
 
     void OnMouseDrag() {
         if (!GameManager.ballMoving) {
-            Vector3 center = new Vector3(ball.position.x, ball.position.y, 0);
+            Vector3 center = new Vector3(ballCenter.x, ballCenter.y, 0);
             Vector3 MousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             MousePos.z = 0;
             Vector3 d = MousePos - center;
             d.Normalize();
-            Vector3 p = center + (-d) * 1f;
+            Vector3 p = center + (-d) * 1.5f;
 
             lr.positionCount = 2;
             lr.SetPosition(0, center);
@@ -35,7 +35,7 @@ public class MouseAreaManager : MonoBehaviour {
         if (!GameManager.ballMoving) {
             lr.enabled = false;
             Vector3 MousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 dir = new Vector2(MousePos.x - ball.position.x, MousePos.y - ball.position.y);
+            Vector2 dir = new Vector2(MousePos.x - ballCenter.x, MousePos.y - ballCenter.y);
             dir.Normalize();
             dir = -dir;
             StartCoroutine(GameManager.throwBalls(dir));

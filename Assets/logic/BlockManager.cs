@@ -9,8 +9,13 @@ public class BlockManager : MonoBehaviour {
     private int hp;
 
 	void Awake () {
-        hp = GameManager.currentLevel;
+        float rand = Random.Range(0f, 1f);
+        if (rand <= 0.95)
+            hp = GameManager.currentLevel;
+        else hp = GameManager.currentLevel * 2;
         hpText.text = hp.ToString();
+
+        this.GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp/100f,0.92f), 1f, 1f);
 	}
 
     private void OnCollisionEnter2D(Collision2D collision) {
@@ -20,13 +25,10 @@ public class BlockManager : MonoBehaviour {
                 GameManager.removeBlock(this.gameObject);
                 Destroy(this.gameObject);
             }
-            else
+            else {
                 hpText.text = hp.ToString();
+                this.GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp / 100f, 0.92f), 1f, 1f);
+            }
         }
     }
-
-    // Update is called once per frame
-    void Update () {
-		
-	}
 }

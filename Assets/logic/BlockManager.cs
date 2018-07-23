@@ -7,7 +7,7 @@ public class BlockManager : MonoBehaviour {
 
     public Text hpText;
     public AudioClip hitClip;
-    private int hp;
+    public int hp;
 
 	void Awake () {
         float rand = Random.Range(0f, 1f);
@@ -16,7 +16,7 @@ public class BlockManager : MonoBehaviour {
         else hp = GameManager.currentLevel * 2;
         hpText.text = hp.ToString();
 
-        this.GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp/100f,0.92f), 1f, 1f);
+        this.GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp / 200f,0.92f), 1f, 1f);
 	}
 
     private void OnCollisionEnter2D(Collision2D collision) {
@@ -32,6 +32,14 @@ public class BlockManager : MonoBehaviour {
                 hpText.text = hp.ToString();
                 this.GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp / 200f, 0.92f), 1f, 1f);
             }
+        }
+    }
+
+    public void halveHP() {
+        if (hp > 1) {
+            hp /= 2;
+            hpText.text = hp.ToString();
+            this.GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp / 200f, 0.92f), 1f, 1f);
         }
     }
 }

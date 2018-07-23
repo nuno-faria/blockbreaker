@@ -17,3 +17,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/gameOverScene.unity
     guid: 55b521deb3abe754a9898e575f4e1784
+  - enabled: 1
+    path: Assets/pickupsScene.unity
+    guid: 0c49da1bffaaa1c42b74d2a72ffe34a1

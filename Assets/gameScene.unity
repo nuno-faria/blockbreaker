@@ -147,6 +147,17 @@ MonoBehaviour:
   soundObject: {fileID: 2096332256}
   soundOn: {fileID: 21300000, guid: 26e1d94f9d212924f84e57d4be3f91a6, type: 3}
   soundOff: {fileID: 21300000, guid: 2ce2510defed0054699a297a30074ebf, type: 3}
+  pickupPrefab: {fileID: 1788343644713738, guid: ec374863160635c479f6514a40a2a54a,
+    type: 2}
+  pickupsSprites:
+  - {fileID: 21300000, guid: ef67001fc64c4414e8cfe4dd54c7706f, type: 3}
+  - {fileID: 21300000, guid: ae09d7012611da247bac6b6df0c241e7, type: 3}
+  - {fileID: 21300000, guid: 324dd7dc1fef6c942b8ad233b8258e43, type: 3}
+  - {fileID: 21300000, guid: ed3e3823d67a88d43bf61fcae3d1d434, type: 3}
+  - {fileID: 21300000, guid: 99ddea499a05dc4478bacc1dd47bea39, type: 3}
+  - {fileID: 21300000, guid: a5f405a54cd2f4747b032f1b0beddb86, type: 3}
+  - {fileID: 21300000, guid: ccd87d574d897734eaa12463a74aa02e, type: 3}
+  - {fileID: 21300000, guid: c4c74e19d1997d74180f151d09216f2c, type: 3}
 --- !u!4 &42635322
 Transform:
   m_ObjectHideFlags: 0

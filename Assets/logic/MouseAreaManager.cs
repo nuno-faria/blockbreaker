@@ -7,9 +7,15 @@ public class MouseAreaManager : MonoBehaviour {
     public static Vector2 ballCenter;
     public LineRenderer lr;
 
+    //Vector where the arrow is pointing
+    private Vector2 p;
+
+    public static float pointerLength;
+
     void Start() {
         lr.endWidth = 0.02f;
         lr.startWidth = 0.07f;
+        pointerLength = 1.5f;
     }
 
     void OnMouseDrag() {
@@ -19,13 +25,20 @@ public class MouseAreaManager : MonoBehaviour {
             MousePos.z = 0;
             Vector3 d = MousePos - center;
             d.Normalize();
-            Vector3 p = center + (-d) * 1.5f;
+            p = center + (-d) * pointerLength;
+
+            if (p.y < -4.2)
+                p = new Vector2(p.x, -4.2f);
 
             lr.positionCount = 2;
             lr.SetPosition(0, center);
             lr.SetPosition(1, p);
-            lr.startColor = Color.white;
-            lr.endColor = Color.white;
+            Color c;
+            if (pointerLength == 3)
+                c = Color.yellow;
+            else c = Color.white;
+            lr.startColor = c;
+            lr.endColor = c;
             lr.enabled = true;
         }
     }
@@ -34,10 +47,8 @@ public class MouseAreaManager : MonoBehaviour {
     void OnMouseUp() {
         if (!GameManager.ballMoving) {
             lr.enabled = false;
-            Vector3 MousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector2 dir = new Vector2(MousePos.x - ballCenter.x, MousePos.y - ballCenter.y);
+            Vector2 dir = new Vector2(p.x - ballCenter.x, p.y - ballCenter.y);
             dir.Normalize();
-            dir = -dir;
             StartCoroutine(GameManager.throwBalls(dir));
         }
     }

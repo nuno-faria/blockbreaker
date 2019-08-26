@@ -7,6 +7,8 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 
+    public static GameManager gm;
+
     //unity objects
     public GameObject blockPrefab;
     public GameObject ballPrefab;
@@ -18,34 +20,25 @@ public class GameManager : MonoBehaviour {
     public GameObject pickupPrefab;
     public List<Sprite> pickupsSprites;
 
-    //game vars
-    private static List<GameObject> balls;
-    private static List<GameObject> blocks;
-    private static Dictionary<GameObject, int> objectsDepths; //blocks and pickups
-    private static List<GameObject> pickups;
-    private static int nBallsBoard;
-    private static float blockSize;
-    public static int currentLevel = 0;
-    public static bool ballMoving = false;
-    public static bool sound;
-    public static int nBalls;
-    private static bool doubleBalls;
-    private static bool noSpawn;
 
-
-    //static unity objects
-    private static GameObject sBallPrefab;
-    private static GameObject sBlockPrefab;
-    private static GameObject sMouseArea;
-    private static Text sLevel;
-    private static GameObject sSoundObject;
-    private static Sprite sSoundOn;
-    private static Sprite sSoundOff;
-    private static GameObject sPickupPrefab;
-    private static List<Sprite> sPickupsSprites;
+    private List<GameObject> balls;
+    private List<GameObject> blocks;
+    private Dictionary<GameObject, int> objectsDepths; //blocks and pickups
+    private List<GameObject> pickups;
+    private int nBallsBoard;
+    private float blockSize;
+    public int currentLevel = 0;
+    public bool ballMoving = false;
+    public bool sound;
+    public int nBalls;
+    private bool doubleBalls;
+    private bool noSpawn;
 
 
     void Start () {
+        gm = this;
+
+
         blockSize = blockPrefab.GetComponent<Renderer>().bounds.size.x;
 
         balls = new List<GameObject>();
@@ -65,27 +58,18 @@ public class GameManager : MonoBehaviour {
         sound = true;
         doubleBalls = false;
 
-        sBallPrefab = ballPrefab;
-        sBlockPrefab = blockPrefab;
-        sMouseArea = mouseArea;
-        sLevel = level;
-        sSoundObject = soundObject;
-        sSoundOn = soundOn;
-        sSoundOff = soundOff;
-        sPickupPrefab = pickupPrefab;
-        sPickupsSprites = pickupsSprites;
+        MouseAreaController.ballCenter = ballPrefab.transform.position;
 
-        MouseAreaManager.ballCenter = ballPrefab.transform.position;
-
-        generateRow(Random.Range(2, 4));
+        GenerateRow(Random.Range(2, 4));
     }
 
+
     //max nBlocks = 7
-    private static void generateRow(int nBlocks) {
+    private void GenerateRow(int nBlocks) {
         List<int> l = new List<int> { -3, -2, -1, 0, 1, 2, 3};
         for (int i = 0; i< nBlocks; i++) {
             int idx = Random.Range(0, l.Count);
-            createBlock(l[idx]);
+            CreateBlock(l[idx]);
             l.Remove(l[idx]);
         }
 
@@ -93,21 +77,23 @@ public class GameManager : MonoBehaviour {
         if (l.Count > 0) {
             int x = Random.Range(0, 100);
             if (x < 15)
-                createPickup(l[Random.Range(0,l.Count)]);
+                CreatePickup(l[Random.Range(0,l.Count)]);
         }
     }
 
-    private static void createBlock(int col) {
-        GameObject g = Instantiate(sBlockPrefab);
+
+    private void CreateBlock(int col) {
+        GameObject g = Instantiate(blockPrefab);
         g.transform.position = new Vector2(blockSize * col, 3.6f);
         blocks.Add(g);
         objectsDepths.Add(g, 1);
     }
 
-    private static void createPickup(int col) {
-        string sprite = "";
-        int x = Random.Range(0, 100);
 
+    private void CreatePickup(int col) {
+        string sprite = "";
+        //TODO
+        int x = Random.Range(0, 88);
         if (x < 20) sprite = "plus-one";
         else if (x >= 20 && x < 40) sprite = "plus-two";
         else if (x >= 40 && x < 50) sprite = "plus-three";
@@ -115,44 +101,43 @@ public class GameManager : MonoBehaviour {
         else if (x >= 68 && x < 80) sprite = "no-spawn";
         else if (x >= 80 && x < 86) sprite = "halve-blocks";
         else if (x >= 86 && x < 88) sprite = "clear-map";
-        else if (x >= 88) sprite = "bigger-pointer";
-
-        if (sprite == "bigger-pointer" && (MouseAreaManager.pointerLength == 3 || (pickups.Count > 0 && pickups.Where(p => p.GetComponent<SpriteRenderer>().sprite.name == "bigger-pointer_pickup").Count() == 1)))
-            sprite = "plus-one";
 
         sprite += "_pickup";
 
-        GameObject g = Instantiate(sPickupPrefab);
-        g.GetComponent<SpriteRenderer>().sprite = sPickupsSprites.Where(s => s.name == sprite).First();
+        GameObject g = Instantiate(pickupPrefab);
+        g.GetComponent<SpriteRenderer>().sprite = pickupsSprites.Where(s => s.name == sprite).First();
         g.transform.position = new Vector2(blockSize * col, 3.6f);
         pickups.Add(g);
         objectsDepths.Add(g, 1);
     }
 
-    public static IEnumerator throwBalls(Vector2 dir) {
+
+    public IEnumerator ThrowBalls(Vector2 dir) {
         ballMoving = true;
-        sMouseArea.GetComponent<SpriteRenderer>().enabled = false;
+        mouseArea.GetComponent<SpriteRenderer>().enabled = false;
         foreach (GameObject b in balls.ToList()) {
             b.GetComponent<Rigidbody2D>().velocity = dir * 18;
             yield return new WaitForSeconds(0.07f);
         }
     }
 
-    public static void decrementNBallsBoard() {
+
+    public void DecrementNBallsBoard() {
         nBallsBoard--;
         if (nBallsBoard == 0)
-            newLevel();
+            NewLevel();
     }
 
-    public static void newLevel() {
-        currentLevel++;
-        sLevel.text = currentLevel.ToString();
 
+    public void NewLevel() {
+        currentLevel++;
+        level.text = currentLevel.ToString();
+            
 
         //check if game over
         foreach (GameObject block in objectsDepths.Keys.Where(x => blocks.Contains(x)).ToList()) {
             if (objectsDepths[block] == 10)
-                SceneManager.LoadScene("gameOverScene");
+                SceneManager.LoadScene("GameOverScene");
             else
                 objectsDepths[block]++;
         }
@@ -178,14 +163,14 @@ public class GameManager : MonoBehaviour {
 
         if (!noSpawn) {
             if (currentLevel < 20 && !noSpawn)
-                generateRow(Random.Range(3, 6));
+                GenerateRow(Random.Range(3, 6));
             else {
                 int x = Random.Range(0, 100);
-                if (x < 5) generateRow(3);
-                else if (x >= 5 && x < 35) generateRow(4);
-                else if (x >= 35 && x < 80) generateRow(5);
-                else if (x >= 80 && x < 95) generateRow(6);
-                else if (x >= 95) generateRow(7);
+                if (x < 5) GenerateRow(3);
+                else if (x >= 5 && x < 35) GenerateRow(4);
+                else if (x >= 35 && x < 80) GenerateRow(5);
+                else if (x >= 80 && x < 95) GenerateRow(6);
+                else if (x >= 95) GenerateRow(7);
             }
         }
         else noSpawn = false;
@@ -193,43 +178,47 @@ public class GameManager : MonoBehaviour {
 
         //balls and mouse area
         float randomX = Random.Range(-2f, 2f);
-        Vector2 center = new Vector2(randomX, sBallPrefab.transform.position.y);
-        sBallPrefab.transform.position = center;
-        sMouseArea.transform.position = new Vector3(center.x, center.y, -0.01f);
-        sMouseArea.GetComponent<SpriteRenderer>().enabled = true;
-        MouseAreaManager.ballCenter = center;
+        Vector2 center = new Vector2(randomX, ballPrefab.transform.position.y);
+        ballPrefab.transform.position = center;
+        mouseArea.transform.position = new Vector3(center.x, center.y, -0.01f);
+        mouseArea.GetComponent<SpriteRenderer>().enabled = true;
+        MouseAreaController.ballCenter = center;
 
         balls.Clear();
         nBalls++;
         for (int i = 0; i < nBalls * (doubleBalls ? 2 : 1); i++)
-            balls.Add(Instantiate(sBallPrefab));
+            balls.Add(Instantiate(ballPrefab));
         nBallsBoard = balls.Count();
         ballMoving = false;
         doubleBalls = false;
     }
 
-    public static void removeBlock(GameObject block) {
+
+    public void RemoveBlock(GameObject block) {
         blocks.Remove(block);
         objectsDepths.Remove(block);
     }
 
-    public static void skipLevel() {
+
+    public void SkipLevel() {
         foreach (GameObject ball in balls)
             Destroy(ball);
         nBallsBoard = 0;
-        newLevel();
+        NewLevel();
     }
 
-    public static void turnSound() {
+
+    public void TurnSound() {
         sound = !sound;
 
         if (sound)
-            sSoundObject.GetComponent<SpriteRenderer>().sprite = sSoundOn;
+            soundObject.GetComponent<SpriteRenderer>().sprite = soundOn;
 
-        else sSoundObject.GetComponent<SpriteRenderer>().sprite = sSoundOff;
+        else soundObject.GetComponent<SpriteRenderer>().sprite = soundOff;
     }
 
-    public static void activatePickup(GameObject p) {
+
+    public void ActivatePickup(GameObject p) {
         Destroy(p);
         pickups.Remove(p);
         objectsDepths.Remove(p);
@@ -250,10 +239,6 @@ public class GameManager : MonoBehaviour {
                 nBalls += 3;
                 break;
 
-            case "bigger-pointer":
-                MouseAreaManager.pointerLength = 3;
-                break;
-
             case "clear-map":
                 foreach (GameObject block in blocks) {
                     Destroy(block);
@@ -264,7 +249,7 @@ public class GameManager : MonoBehaviour {
 
             case "halve-blocks":
                 foreach (GameObject block in blocks)
-                    block.GetComponent<BlockManager>().halveHP();
+                    block.GetComponent<BlockController>().halveHP();
                 break;
 
             case "2x":

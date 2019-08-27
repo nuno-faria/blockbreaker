@@ -9,8 +9,9 @@ public class GameManager : MonoBehaviour {
 
     public static GameManager gm;
 
-    //unity objects
-    public GameObject blockPrefab;
+    public List<GameObject> blocksPrefabs;
+    public List<int> blocksWeights;
+    public List<int> typesWeights;
     public GameObject ballPrefab;
     public GameObject mouseArea;
     public Text level;
@@ -33,23 +34,20 @@ public class GameManager : MonoBehaviour {
     public int nBalls;
     private bool doubleBalls;
     private bool noSpawn;
+    public static bool classic = false;
+    //TODO review weights
+    private ProbabilityPicker<GameObject> blocksProbPicker;
 
 
     void Start () {
         gm = this;
-
-
-        blockSize = blockPrefab.GetComponent<Renderer>().bounds.size.x;
-
+        blockSize = blocksPrefabs[0].GetComponent<Renderer>().bounds.size.x;
         balls = new List<GameObject>();
         ballPrefab.transform.position = new Vector2(0, -4.3f);
         balls.Add(Instantiate(ballPrefab));
-
         blocks = new List<GameObject>();
         objectsDepths = new Dictionary<GameObject, int>();
-
         pickups = new List<GameObject>();
-
         nBalls = 1;
         nBallsBoard = 1;
         currentLevel = 1;
@@ -57,8 +55,12 @@ public class GameManager : MonoBehaviour {
         level.text = "1";
         sound = true;
         doubleBalls = false;
-
         MouseAreaController.ballCenter = ballPrefab.transform.position;
+
+        //blocks probabilities
+        blocksProbPicker = new ProbabilityPicker<GameObject>();
+        for (int i = 0; i < blocksPrefabs.Count; i++)
+            blocksProbPicker.Add(blocksPrefabs[i], blocksWeights[i]);
 
         GenerateRow(Random.Range(2, 4));
     }
@@ -67,7 +69,7 @@ public class GameManager : MonoBehaviour {
     //max nBlocks = 7
     private void GenerateRow(int nBlocks) {
         List<int> l = new List<int> { -3, -2, -1, 0, 1, 2, 3};
-        for (int i = 0; i< nBlocks; i++) {
+        for (int i = 0; i < nBlocks; i++) {
             int idx = Random.Range(0, l.Count);
             CreateBlock(l[idx]);
             l.Remove(l[idx]);
@@ -83,10 +85,16 @@ public class GameManager : MonoBehaviour {
 
 
     private void CreateBlock(int col) {
-        GameObject g = Instantiate(blockPrefab);
-        g.transform.position = new Vector2(blockSize * col, 3.6f);
-        blocks.Add(g);
-        objectsDepths.Add(g, 1);
+        GameObject prefab;
+        if (classic)
+            prefab = blocksPrefabs[0];
+        else
+            prefab = blocksProbPicker.Pick();
+
+        GameObject block = Instantiate(prefab);
+        block.transform.position = new Vector2(blockSize * col, 3.6f);
+        blocks.Add(block);
+        objectsDepths.Add(block, 1);
     }
 
 
@@ -132,35 +140,47 @@ public class GameManager : MonoBehaviour {
     public void NewLevel() {
         currentLevel++;
         level.text = currentLevel.ToString();
-            
-
-        //check if game over
-        foreach (GameObject block in objectsDepths.Keys.Where(x => blocks.Contains(x)).ToList()) {
-            if (objectsDepths[block] == 10)
-                SceneManager.LoadScene("GameOverScene");
-            else
-                objectsDepths[block]++;
-        }
+        CheckGameOver();
+        MoveObjects();
+        SpawnRow();
+        ResetThrowArea();
+    }
 
 
-        //blocks and pickups
-        foreach (GameObject block in blocks)
-            block.transform.Translate(new Vector2(0, -blockSize));
+    void CheckGameOver() {
+        if (objectsDepths.Any(x => x.Value == 10))
+            SceneManager.LoadScene("GameOverScene");
+    }
 
-        //pickups
+
+    void MoveObjects() {
+        //destroy pickup if depth is 6
         foreach (GameObject pickup in pickups.ToList()) {
             if (objectsDepths[pickup] == 6) {
                 objectsDepths.Remove(pickup);
                 pickups.Remove(pickup);
                 Destroy(pickup);
             }
-            else
-                objectsDepths[pickup]++;
         }
 
+        //translate blocks
+        foreach (GameObject block in blocks) {
+            Vector3 rotation = block.transform.eulerAngles;
+            block.transform.eulerAngles = Vector3.zero;
+            block.transform.Translate(new Vector2(0, -blockSize));
+            block.transform.eulerAngles = rotation;
+        }
+
+        //translate pickups
         foreach (GameObject pickup in pickups)
             pickup.transform.Translate(new Vector2(0, -blockSize));
 
+        //update depth
+        objectsDepths.Keys.ToList().ForEach(x => objectsDepths[x] += 1);
+    }
+
+
+    void SpawnRow() {
         if (!noSpawn) {
             if (currentLevel < 20 && !noSpawn)
                 GenerateRow(Random.Range(3, 6));
@@ -174,9 +194,10 @@ public class GameManager : MonoBehaviour {
             }
         }
         else noSpawn = false;
+    }
 
 
-        //balls and mouse area
+    void ResetThrowArea() {
         float randomX = Random.Range(-2f, 2f);
         Vector2 center = new Vector2(randomX, ballPrefab.transform.position.y);
         ballPrefab.transform.position = center;

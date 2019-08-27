@@ -6,6 +6,7 @@ TagManager:
   tags:
   - ball
   - pickup
+  - blockLava
   layers:
   - Default
   - TransparentFX

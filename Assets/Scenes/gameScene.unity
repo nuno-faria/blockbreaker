@@ -149,8 +149,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 352b168e484e0ed4399c1e7c778ef7f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blockPrefab: {fileID: 1845418317470558, guid: 03218687bd5090c43a5dc72725a78038,
-    type: 3}
+  blocksPrefabs:
+  - {fileID: 1845418317470558, guid: 03218687bd5090c43a5dc72725a78038, type: 3}
+  - {fileID: 1845418317470558, guid: 914317f976090d74397924d26c251278, type: 3}
+  - {fileID: 1845418317470558, guid: 35634020b3349544cbc593c963b78e11, type: 3}
+  - {fileID: 1845418317470558, guid: 02095857cabee784a8ab7086ac2f69cc, type: 3}
+  - {fileID: 1845418317470558, guid: 2ba607143306418468598997eca01ebd, type: 3}
+  - {fileID: 1845418317470558, guid: bf6f76cf3cd715643a34ffbbb56841d4, type: 3}
+  - {fileID: 1845418317470558, guid: 6451f56e57956024eb70747f585d416d, type: 3}
+  - {fileID: 1845418317470558, guid: bcbd7da87983eda40bfa87a6fcd8e525, type: 3}
+  - {fileID: 1845418317470558, guid: ee3f240dd117ccf4990f0dad1e88a6dd, type: 3}
+  blocksWeights: 250000001b00000014000000030000000300000003000000030000000200000002000000
+  typesWeights: 5a0000000500000005000000
   ballPrefab: {fileID: 1145892716504992, guid: 9b50e9e1a508ed14f81a9315ffb2b4af, type: 3}
   mouseArea: {fileID: 512562142}
   level: {fileID: 365331280}

@@ -13,11 +13,6 @@ public class MainManager : MonoBehaviour {
     }
 
 
-    public void LoadGameScene() {
-        SceneManager.LoadScene("GameScene");
-    }
-
-
     public void LoadInstructionsScene() {
         SceneManager.LoadScene("InstructionsScene");
     }
@@ -33,7 +28,19 @@ public class MainManager : MonoBehaviour {
     }
 
 
-    public void ToggleSound() {
-        //GameManager.gm.turnSound();
+    public void LoadGameModeSelectionScene() {
+        SceneManager.LoadScene("GameModeSelectionScene");
+    }
+
+
+    public void LoadClassicGame() {
+        GameManager.classic = true;
+        SceneManager.LoadScene("GameScene");
+    }
+
+
+    public void LoadModernGame() {
+        GameManager.classic = false;
+        SceneManager.LoadScene("GameScene");
     }
 }

@@ -20,4 +20,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PickupsScene.unity
     guid: 0c49da1bffaaa1c42b74d2a72ffe34a1
+  - enabled: 1
+    path: Assets/Scenes/GameModeSelectionScene.unity
+    guid: b8cd7f4163acc4847826678f4252ac47
   m_configObjects: {}

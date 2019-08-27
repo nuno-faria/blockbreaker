@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.012, y: -0.008}
-  m_SizeDelta: {x: 1.485, y: 1.486}
+  m_AnchoredPosition: {x: -0.331, y: -0.805}
+  m_SizeDelta: {x: 1.1684, y: 0.6427}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &222990720413230654
 CanvasRenderer:
@@ -69,13 +69,13 @@ MonoBehaviour:
     m_Font: {fileID: 12800000, guid: 2bc4e4f7f281ebf4686a862b6f594ee0, type: 3}
     m_FontSize: 1
     m_FontStyle: 0
-    m_BestFit: 0
+    m_BestFit: 1
     m_MinSize: 0
     m_MaxSize: 40
     m_Alignment: 4
     m_AlignByGeometry: 0
     m_RichText: 1
-    m_HorizontalOverflow: 0
+    m_HorizontalOverflow: 1
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 000
@@ -107,7 +107,7 @@ RectTransform:
   m_GameObject: {fileID: 1398802726433218}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.42712027, y: 0.42712027, z: 0.42712027}
+  m_LocalScale: {x: 0.35, y: 0.35, z: 0.35}
   m_Children:
   - {fileID: 224424802192101674}
   m_Father: {fileID: 4231440477113868}
@@ -188,11 +188,11 @@ GameObject:
   m_Component:
   - component: {fileID: 4231440477113868}
   - component: {fileID: 212572648547963932}
-  - component: {fileID: 61819346665280938}
   - component: {fileID: 114490212758389430}
   - component: {fileID: 82702926805876164}
+  - component: {fileID: 4144975382362361013}
   m_Layer: 0
-  m_Name: Block
+  m_Name: BlockTriangle_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -206,7 +206,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1845418317470558}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.7147607, y: -0.4342883, z: 0}
+  m_LocalPosition: {x: -1.674, y: -0.386, z: 0}
   m_LocalScale: {x: 1.02, y: 1.02, z: 0}
   m_Children:
   - {fileID: 224709066069489100}
@@ -250,7 +250,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: abd4dbc0e7a38d94aa37b2349ef0e578, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a1a275ed24f67dc46979a5b0db065975, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -261,32 +261,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!61 &61819346665280938
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1845418317470558}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.8, y: 0.8}
-    newSize: {x: 0.8, y: 0.8}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.8, y: 0.8}
-  m_EdgeRadius: 0
 --- !u!114 &114490212758389430
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -302,6 +276,7 @@ MonoBehaviour:
   hpText: {fileID: 114224857570447558}
   hitClip: {fileID: 8300000, guid: 9ada8e902482c774f9931b40c2db2c6b, type: 3}
   hp: 0
+  type: normal
 --- !u!82 &82702926805876164
 AudioSource:
   m_ObjectHideFlags: 0
@@ -398,3 +373,33 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 0
+--- !u!60 &4144975382362361013
+PolygonCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1845418317470558}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.8, y: 0.8}
+    newSize: {x: 0.8, y: 0.8}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  m_Points:
+    m_Paths:
+    - - {x: -0.39999998, y: 0.39999998}
+      - {x: -0.39976487, y: -0.39976466}
+      - {x: 0.39999998, y: -0.39999998}
+      - {x: 0.40005085, y: -0.39982066}
+      - {x: -0.39977258, y: 0.40011063}

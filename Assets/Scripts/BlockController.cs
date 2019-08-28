@@ -9,12 +9,15 @@ public class BlockController : MonoBehaviour {
     public AudioClip hitClip;
     public int hp;
     public string type = "normal";
+    public float doubleHealthProbability = 0.1f;
 
 	void Awake () {
         float rand = Random.Range(0f, 1f);
-        if (rand <= 0.95)
+        if (rand <= 1 - doubleHealthProbability)
             hp = GameManager.gm.currentLevel;
-        else hp = GameManager.gm.currentLevel * 2;
+        else
+            hp = GameManager.gm.currentLevel * 2;
+
         hpText.text = hp.ToString();
 
         //color

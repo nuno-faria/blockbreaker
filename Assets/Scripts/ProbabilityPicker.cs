@@ -8,6 +8,7 @@ class ProbabilityPicker<T> {
 
     private Dictionary<T, int> items;
     private Random rand;
+    private List<T> bag;
 
     /// <summary>
     /// Constructor
@@ -15,6 +16,7 @@ class ProbabilityPicker<T> {
     public ProbabilityPicker() {
         items = new Dictionary<T, int>();
         rand = new Random();
+        bag = null;
     }
 
 
@@ -33,10 +35,28 @@ class ProbabilityPicker<T> {
     /// </summary>
     /// <returns>Item picked</returns>
     public T Pick() {
-        List<T> l = new List<T>();
+        if (bag == null)
+            CreateBag();
+        return bag[rand.Next(bag.Count)];
+    }
+
+
+    /// <summary>
+    /// Removes an item
+    /// </summary>
+    /// <param name="item">Item to remove</param>
+    public void Remove(T item) {
+        if (items.ContainsKey(item)) {
+            items.Remove(item);
+            CreateBag();
+        }
+    }
+
+
+    private void CreateBag() {
+        bag = new List<T>();
         foreach (var keyPair in items)
             for (int i = 0; i < keyPair.Value; i++)
-                l.Add(keyPair.Key);
-        return l[rand.Next(l.Count)];
+                bag.Add(keyPair.Key);
     }
 }

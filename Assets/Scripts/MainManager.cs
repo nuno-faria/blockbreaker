@@ -33,14 +33,23 @@ public class MainManager : MonoBehaviour {
     }
 
 
-    public void LoadClassicGame() {
+    public void LoadClassicGameScene() {
         GameManager.classic = true;
+        GameManager.large = false;
         SceneManager.LoadScene("GameScene");
     }
 
 
-    public void LoadModernGame() {
+    public void LoadModernGameScene() {
         GameManager.classic = false;
+        GameManager.large = false;
+        SceneManager.LoadScene("GameScene");
+    }
+
+
+    public void LoadModernExtraGameScene() {
+        GameManager.classic = false;
+        GameManager.large = true;
         SceneManager.LoadScene("GameScene");
     }
 }

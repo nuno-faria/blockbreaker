@@ -34,8 +34,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.772, y: -0.437}
-  m_SizeDelta: {x: 1.1684, y: 0.6427}
+  m_AnchoredPosition: {x: -0.79, y: -0.435}
+  m_SizeDelta: {x: 1.1684, y: 0.6617}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &222990720413230654
 CanvasRenderer:
@@ -277,6 +277,7 @@ MonoBehaviour:
   hitClip: {fileID: 8300000, guid: 9ada8e902482c774f9931b40c2db2c6b, type: 3}
   hp: 0
   type: normal
+  doubleHealthProbability: 0.1
 --- !u!82 &82702926805876164
 AudioSource:
   m_ObjectHideFlags: 0

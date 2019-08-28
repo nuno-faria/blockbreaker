@@ -31,7 +31,7 @@ public class MouseAreaController : MonoBehaviour {
                 direction.y = 0.2f;
 
             RaycastHit2D hit;
-            hit = Physics2D.CircleCast(ballCenter, 0.25f, direction, 10f, layersToIngore);
+            hit = Physics2D.CircleCast(ballCenter, 0.107f, direction, 10f, layersToIngore);
 
             line.SetPosition(0, center);
             line.SetPosition(1, hit.point);

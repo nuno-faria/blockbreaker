@@ -10,13 +10,21 @@ public class BlockController : MonoBehaviour {
     public int hp;
     public string type = "normal";
     public float doubleHealthProbability = 0.1f;
+    public ParticleSystem destroyParticleSystem;
+
 
 	void Awake () {
-        float rand = Random.Range(0f, 1f);
-        if (rand <= 1 - doubleHealthProbability)
-            hp = GameManager.gm.currentLevel;
-        else
-            hp = GameManager.gm.currentLevel * 2;
+        if (GameManager.hardcore)
+            hp = Mathf.RoundToInt(GameManager.gm.currentLevel * 1.25f);
+
+        else {
+            float rand = Random.Range(0f, 1f);
+            if (rand <= 1 - doubleHealthProbability)
+                hp = GameManager.gm.currentLevel;
+            else
+                hp = GameManager.gm.currentLevel * 2;
+
+        }
 
         hpText.text = hp.ToString();
 
@@ -63,5 +71,11 @@ public class BlockController : MonoBehaviour {
             if (type == "normal")
                 GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp / 200f, 0.92f), 1f, 1f);
         }
+    }
+
+
+    void OnDestroy() {
+        var particles = Instantiate(destroyParticleSystem);
+        particles.transform.position = transform.position;
     }
 }

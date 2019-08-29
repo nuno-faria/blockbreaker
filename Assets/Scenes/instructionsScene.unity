@@ -336,8 +336,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -2.314}
-  m_SizeDelta: {x: 5.592, y: 1.511}
+  m_AnchoredPosition: {x: 0, y: -2.333}
+  m_SizeDelta: {x: 5.592, y: 1.548}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1330014179
 MonoBehaviour:
@@ -373,7 +373,8 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: A new ball is added at each level. The game is over when a block reaches
-    the end. You can skip a level by pressing the "Next Level >>" button.
+    the end (and no health remaining). A level can be skipped by pressing the "Skip
+    >>" button.
 --- !u!222 &1330014180
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -452,7 +453,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 'Instructions:'
+  m_Text: Instructions
 --- !u!222 &1357368303
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1045,6 +1046,6 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -3.87}
+  m_AnchoredPosition: {x: 0, y: -4.03}
   m_SizeDelta: {x: 2.543, y: 0.652}
   m_Pivot: {x: 0.5, y: 0.5}

@@ -52,4 +52,11 @@ public class MainManager : MonoBehaviour {
         GameManager.large = true;
         SceneManager.LoadScene("GameScene");
     }
+
+    public void LoadModernHardcoreGameScene() {
+        GameManager.classic = false;
+        GameManager.large = false;
+        GameManager.hardcore = true;
+        SceneManager.LoadScene("GameScene");
+    }
 }

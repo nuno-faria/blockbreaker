@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
+
 public class GameManager : MonoBehaviour {
 
     public static GameManager gm;
@@ -13,6 +14,7 @@ public class GameManager : MonoBehaviour {
     public List<int> blocksWeights;
     public GameObject ballPrefab;
     public GameObject mouseArea;
+    private SpriteRenderer mouseAreaSprite;
     public Text level;
     public GameObject soundObject;
     public Sprite soundOn;
@@ -25,6 +27,8 @@ public class GameManager : MonoBehaviour {
     public SpriteRenderer healthIcon;
     public float ballSpeed = 18f;
     public List<int> blockSpawnWeights; // used after level 2
+    public ParticleSystem fireworkParticleSystem;
+    public Text nBallsText;
 
     private List<GameObject> balls;
     private List<GameObject> blocks;
@@ -42,13 +46,14 @@ public class GameManager : MonoBehaviour {
     private bool doubleSpeed;
     public static bool classic = false;
     public static bool large = false;
+    public static bool hardcore = false;
     private Vector2 scaleVector;
     private int colMaxLimit;
     private int largeRowSize = 9;
+    private int pickupLimit;
     private ProbabilityPicker<int> numBlocksSpawnProbPicker;
     private ProbabilityPicker<GameObject> blockTypesProbPicker;
     private ProbabilityPicker<string> pickupsProbPicker;
-    //TODO PICKUP LIMIT
 
 
     void Start () {
@@ -67,10 +72,12 @@ public class GameManager : MonoBehaviour {
         sound = true;
         doubleBalls = false;
         doubleSpeed = false;
+        mouseAreaSprite = mouseArea.GetComponent<SpriteRenderer>();
+        nBallsText.text = "1";
         MouseAreaController.ballCenter = ballPrefab.transform.position;
 
         //health
-        if (classic) {
+        if (classic || hardcore) {
             health = -1;
             healthText.text = "";
             healthIcon.enabled = false;
@@ -78,6 +85,21 @@ public class GameManager : MonoBehaviour {
         else {
             health = 1;
             healthText.text = "1";
+        }
+
+        //large mode
+        if (large) {
+            scaleVector = new Vector2(7f / largeRowSize, 7f / largeRowSize);
+            blockSize = blocksPrefabs[0].GetComponent<Renderer>().bounds.size.x * (7f / largeRowSize);
+            colMaxLimit = Mathf.FloorToInt(largeRowSize * 10f / 7f);
+            balls[0].transform.localScale *= scaleVector;
+            pickupLimit = Mathf.RoundToInt(colMaxLimit * 6f / 10f);
+        }
+        else {
+            scaleVector = new Vector2(1f, 1f);
+            blockSize = blocksPrefabs[0].GetComponent<Renderer>().bounds.size.x;
+            colMaxLimit = 10;
+            pickupLimit = 6;
         }
 
         //block spawn probabilities
@@ -97,24 +119,10 @@ public class GameManager : MonoBehaviour {
         if (classic)
             pickupsProbPicker.Remove("heart_pickup");
 
-        //large mode
-        if (large) {
-            scaleVector = new Vector2(7f / largeRowSize, 7f / largeRowSize);
-            blockSize = blocksPrefabs[0].GetComponent<Renderer>().bounds.size.x * (7f/ largeRowSize);
-            colMaxLimit = Mathf.FloorToInt(largeRowSize * 10f / 7f);
-            balls[0].transform.localScale *= scaleVector;
-        }
-        else {
-            scaleVector = new Vector2(1f, 1f);
-            blockSize = blocksPrefabs[0].GetComponent<Renderer>().bounds.size.x;
-            colMaxLimit = 10;
-        }
-
         GenerateRow(Random.Range(2, 4));
     }
 
 
-    //max nBlocks = 7
     private void GenerateRow(int nBlocks) {
         if (large)
             nBlocks = Mathf.RoundToInt(nBlocks * largeRowSize / 7f);
@@ -127,7 +135,7 @@ public class GameManager : MonoBehaviour {
         }
 
         //pickup
-        if (l.Count > 0) {
+        if (!hardcore && l.Count > 0) {
             int x = Random.Range(0, 100);
             if (x < pickupWeight)
                 CreatePickup(l[Random.Range(0,l.Count)]);
@@ -176,16 +184,6 @@ public class GameManager : MonoBehaviour {
     }
 
 
-    public IEnumerator ThrowBalls(Vector2 dir) {
-        ballMoving = true;
-        mouseArea.GetComponent<SpriteRenderer>().enabled = false;
-        foreach (GameObject b in balls.ToList()) {
-            b.GetComponent<Rigidbody2D>().velocity = dir * ballSpeed * (doubleSpeed ? 2 : 1);
-            yield return new WaitForSeconds(0.07f);
-        }
-    }
-
-
     public void DecrementNBallsBoard() {
         nBallsBoard--;
         if (nBallsBoard == 0)
@@ -200,6 +198,8 @@ public class GameManager : MonoBehaviour {
         MoveObjects();
         SpawnRow();
         ResetThrowArea();
+        if (currentLevel % 10 == 0)
+            LaunchFirework();
     }
 
 
@@ -234,7 +234,7 @@ public class GameManager : MonoBehaviour {
     void MoveObjects() {
         //destroy pickup if depth is 6
         foreach (GameObject pickup in pickups.ToList()) {
-            if (objectsDepths[pickup] == 6) {
+            if (objectsDepths[pickup] == pickupLimit) {
                 objectsDepths.Remove(pickup);
                 pickups.Remove(pickup);
                 Destroy(pickup);
@@ -275,7 +275,7 @@ public class GameManager : MonoBehaviour {
         Vector2 center = new Vector2(randomX, ballPrefab.transform.position.y);
         ballPrefab.transform.position = center;
         mouseArea.transform.position = new Vector3(center.x, center.y, -0.01f);
-        mouseArea.GetComponent<SpriteRenderer>().enabled = true;
+        mouseAreaSprite.enabled = true;
         MouseAreaController.ballCenter = center;
 
         balls.Clear();
@@ -286,6 +286,14 @@ public class GameManager : MonoBehaviour {
         nBallsBoard = balls.Count();
         ballMoving = false;
         doubleBalls = false;
+        nBallsText.text = balls.Count.ToString();
+        nBallsText.enabled = true;
+    }
+
+
+    void LaunchFirework() {
+        var firework = Instantiate(fireworkParticleSystem);
+        firework.transform.position = level.transform.position;
     }
 
 
@@ -334,14 +342,6 @@ public class GameManager : MonoBehaviour {
                 nBalls += 3;
                 break;
 
-            case "clear-map":
-                foreach (GameObject block in blocks) {
-                    Destroy(block);
-                    objectsDepths.Remove(block);
-                }
-                blocks.Clear();
-                break;
-
             case "halve-blocks":
                 foreach (GameObject block in blocks)
                     block.GetComponent<BlockController>().halveHP();
@@ -363,6 +363,39 @@ public class GameManager : MonoBehaviour {
                 doubleSpeed = true;
                 pickupsProbPicker.Remove("2x-speed_pickup");
                 break;
+
+            case "clear-map-100":
+                RemoveBlocks(100);
+                break;
+
+            case "clear-map-50":
+                RemoveBlocks(50);
+                break;
+
+            case "clear-map-15":
+                RemoveBlocks(15);
+                break;
+        }
+    }
+
+
+    void RemoveBlocks(int percentage) {
+        int blocksToRemove = Mathf.RoundToInt(blocks.Count * percentage / 100f);
+        for (int i=0; i<blocksToRemove; i++) {
+            var block = blocks[Random.Range(0, blocks.Count)];
+            Destroy(block);
+            RemoveBlock(block);
+        }
+    }
+
+
+    public IEnumerator ThrowBalls(Vector2 dir) {
+        ballMoving = true;
+        nBallsText.enabled = false;
+        mouseAreaSprite.enabled = false;
+        foreach (GameObject b in balls.ToList()) {
+            b.GetComponent<Rigidbody2D>().velocity = dir * ballSpeed * (doubleSpeed ? 2 : 1);
+            yield return new WaitForSeconds(0.07f);
         }
     }
 }

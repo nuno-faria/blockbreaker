@@ -7,14 +7,19 @@ public class MouseAreaController : MonoBehaviour {
     public static Vector2 ballCenter;
     public LineRenderer line;
     public LayerMask layersToIngore;
-    //Vector where the arrow is pointing
+    //Vector where the line is pointing
     private Vector2 p;
+    private float ballRadius;
 
 
 
     void Start() {
-        line.positionCount = 3;
+        if (!GameManager.hardcore)
+            line.positionCount = 3;
+        else
+            line.positionCount = 2;
         layersToIngore = ~layersToIngore;
+        ballRadius = !GameManager.large ? 0.107f : 0.083f;
     }
 
 
@@ -31,15 +36,17 @@ public class MouseAreaController : MonoBehaviour {
                 direction.y = 0.2f;
 
             RaycastHit2D hit;
-            hit = Physics2D.CircleCast(ballCenter, 0.107f, direction, 10f, layersToIngore);
+            hit = Physics2D.CircleCast(ballCenter, ballRadius, direction, 10f, layersToIngore);
 
             line.SetPosition(0, center);
             line.SetPosition(1, hit.point);
             p = hit.point;
 
             //reflection
-            hit = Physics2D.Raycast(hit.point, Vector2.Reflect(direction, hit.normal), 10f, layersToIngore);
-            line.SetPosition(2, hit.point);
+            if (!GameManager.hardcore) {
+                hit = Physics2D.Raycast(hit.point, Vector2.Reflect(direction, hit.normal), 10f, layersToIngore);
+                line.SetPosition(2, hit.point);
+            }
 
             line.enabled = true;
         }

@@ -304,6 +304,8 @@ MonoBehaviour:
   hp: 0
   type: lava
   doubleHealthProbability: 0.1
+  destroyParticleSystem: {fileID: 3706111878591782337, guid: 9c7b27724b2b0b442aaa3ccfa0b0353e,
+    type: 3}
 --- !u!82 &82702926805876164
 AudioSource:
   m_ObjectHideFlags: 0

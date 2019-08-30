@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class MouseAreaController : MonoBehaviour {
 
@@ -10,7 +8,6 @@ public class MouseAreaController : MonoBehaviour {
     //Vector where the line is pointing
     private Vector2 p;
     private float ballRadius;
-
 
 
     void Start() {

@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class BlockController : MonoBehaviour {
@@ -16,14 +14,12 @@ public class BlockController : MonoBehaviour {
 	void Awake () {
         if (GameManager.hardcore)
             hp = Mathf.RoundToInt(GameManager.gm.currentLevel * 1.25f);
-
         else {
             float rand = Random.Range(0f, 1f);
             if (rand <= 1 - doubleHealthProbability)
                 hp = GameManager.gm.currentLevel;
             else
                 hp = GameManager.gm.currentLevel * 2;
-
         }
 
         UpdateHP();

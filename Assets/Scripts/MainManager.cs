@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class MainManager : MonoBehaviour {
 
@@ -37,6 +34,7 @@ public class MainManager : MonoBehaviour {
     public void LoadClassicGameScene(bool continueGame = false) {
         GameManager.classic = true;
         GameManager.large = false;
+        GameManager.hardcore = false;
         GameManager.continueGame = continueGame;
         SceneManager.LoadScene("GameScene");
     }
@@ -45,6 +43,7 @@ public class MainManager : MonoBehaviour {
     public void LoadModernGameScene(bool continueGame = false) {
         GameManager.classic = false;
         GameManager.large = false;
+        GameManager.hardcore = false;
         GameManager.continueGame = continueGame;
         SceneManager.LoadScene("GameScene");
     }
@@ -53,6 +52,7 @@ public class MainManager : MonoBehaviour {
     public void LoadModernExtraGameScene(bool continueGame = false) {
         GameManager.classic = false;
         GameManager.large = true;
+        GameManager.hardcore = false;
         GameManager.continueGame = continueGame;
         SceneManager.LoadScene("GameScene");
     }

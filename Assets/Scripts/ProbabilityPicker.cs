@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
+/// <summary>
+/// Allows to pick items based on a custom probability
+/// </summary>
+/// <typeparam name="T">Type of item</typeparam>
 class ProbabilityPicker<T> {
 
     private Dictionary<T, int> items;

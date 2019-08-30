@@ -132,7 +132,7 @@ GameObject:
   - component: {fileID: 536360655}
   - component: {fileID: 536360654}
   m_Layer: 5
-  m_Name: pickups
+  m_Name: title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -255,7 +255,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1845387606}
         m_MethodName: LoadModernExtraGameScene
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -485,7 +485,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1845387606}
         m_MethodName: LoadModernHardcoreGameScene
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1079,7 +1079,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1845387606}
         m_MethodName: LoadClassicGameScene
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1341,7 +1341,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 1845387606}
         m_MethodName: LoadModernGameScene
-        m_Mode: 1
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

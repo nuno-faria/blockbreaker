@@ -26,11 +26,7 @@ public class BlockController : MonoBehaviour {
 
         }
 
-        hpText.text = hp.ToString();
-
-        //color
-        if (type == "normal")
-            GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp / 200f, 0.92f), 1f, 1f);
+        UpdateHP();
 	}
 
 
@@ -56,9 +52,7 @@ public class BlockController : MonoBehaviour {
                 Destroy(gameObject);
             }
             else {
-                hpText.text = hp.ToString();
-                if (type == "normal")
-                    GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp / 200f, 0.92f), 1f, 1f);
+                UpdateHP();
             }
         }
     }
@@ -67,10 +61,15 @@ public class BlockController : MonoBehaviour {
     public void halveHP() {
         if (hp > 1) {
             hp /= 2;
-            hpText.text = hp.ToString();
-            if (type == "normal")
-                GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp / 200f, 0.92f), 1f, 1f);
+            UpdateHP();
         }
+    }
+
+
+    public void UpdateHP() {
+        hpText.text = hp.ToString();
+        if (type == "normal")
+            GetComponent<SpriteRenderer>().color = Color.HSVToRGB(System.Math.Min(hp / 200f, 0.92f), 1f, 1f);
     }
 
 

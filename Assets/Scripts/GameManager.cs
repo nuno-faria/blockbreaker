@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-
+using Newtonsoft.Json;
 
 public class GameManager : MonoBehaviour {
 
@@ -15,8 +15,9 @@ public class GameManager : MonoBehaviour {
     public GameObject ballPrefab;
     public GameObject mouseArea;
     private SpriteRenderer mouseAreaSprite;
-    public Text level;
+    public Text levelText;
     public GameObject soundObject;
+    private SpriteRenderer soundSpriteRenderer;
     public Sprite soundOn;
     public Sprite soundOff;
     public GameObject pickupPrefab;
@@ -29,11 +30,12 @@ public class GameManager : MonoBehaviour {
     public List<int> blockSpawnWeights; // used after level 2
     public ParticleSystem fireworkParticleSystem;
     public Text nBallsText;
+    public GameObject saveButton;
 
     private List<GameObject> balls;
     private List<GameObject> blocks;
     private List<GameObject> pickups;
-    private Dictionary<GameObject, int> objectsDepths; //blocks and pickups
+    private Dictionary<GameObject, int[]> objectsPositions; //blocks and pickups, [x,y]
     private int nBallsBoard;
     private float blockSize;
     public int currentLevel = 0;
@@ -47,6 +49,7 @@ public class GameManager : MonoBehaviour {
     public static bool classic = false;
     public static bool large = false;
     public static bool hardcore = false;
+    public static bool continueGame = false;
     private Vector2 scaleVector;
     private int colMaxLimit;
     private int largeRowSize = 9;
@@ -55,24 +58,26 @@ public class GameManager : MonoBehaviour {
     private ProbabilityPicker<GameObject> blockTypesProbPicker;
     private ProbabilityPicker<string> pickupsProbPicker;
 
+    private string gameMode;
+
 
     void Start () {
         gm = this;
         balls = new List<GameObject>();
         ballPrefab.transform.position = new Vector2(0, -4.3f);
-        balls.Add(Instantiate(ballPrefab));
         blocks = new List<GameObject>();
-        objectsDepths = new Dictionary<GameObject, int>();
         pickups = new List<GameObject>();
-        nBalls = 1;
-        nBallsBoard = 1;
-        currentLevel = 1;
+        objectsPositions = new Dictionary<GameObject, int[]>();
+        nBalls = 0;
+        nBallsBoard = 0;
+        currentLevel = 0;
         ballMoving = false;
-        level.text = "1";
+        levelText.text = "1";
         sound = true;
         doubleBalls = false;
         doubleSpeed = false;
         mouseAreaSprite = mouseArea.GetComponent<SpriteRenderer>();
+        soundSpriteRenderer = soundObject.GetComponent<SpriteRenderer>();
         nBallsText.text = "1";
         MouseAreaController.ballCenter = ballPrefab.transform.position;
 
@@ -92,7 +97,6 @@ public class GameManager : MonoBehaviour {
             scaleVector = new Vector2(7f / largeRowSize, 7f / largeRowSize);
             blockSize = blocksPrefabs[0].GetComponent<Renderer>().bounds.size.x * (7f / largeRowSize);
             colMaxLimit = Mathf.FloorToInt(largeRowSize * 10f / 7f);
-            balls[0].transform.localScale *= scaleVector;
             pickupLimit = Mathf.RoundToInt(colMaxLimit * 6f / 10f);
         }
         else {
@@ -118,8 +122,21 @@ public class GameManager : MonoBehaviour {
             pickupsProbPicker.Add(pickupsSprites[i].name, pickupsWeights[i]);
         if (classic)
             pickupsProbPicker.Remove("heart_pickup");
+        
+        //gamemode
+        if (classic)
+            gameMode = "classic";
+        else if (large)
+            gameMode = "large";
+        else if (hardcore)
+            gameMode = "hardcore";
+        else
+            gameMode = "modern";
 
-        GenerateRow(Random.Range(2, 4));
+        if (!continueGame)
+            NewLevel();
+        else
+            LoadState();
     }
 
 
@@ -158,29 +175,43 @@ public class GameManager : MonoBehaviour {
     }
 
 
-    void CreateBlock(int col) {
+    void CreateBlock(int col, int row = 0, int? idx = null, int? hp = null) {
         GameObject prefab;
-        if (classic)
+        if (idx != null)
+            prefab = blocksPrefabs[idx.Value];
+        else if (classic)
             prefab = blocksPrefabs[0];
         else
             prefab = blockTypesProbPicker.Pick();
 
         GameObject block = Instantiate(prefab);
         block.transform.localScale *= scaleVector;
-        block.transform.position = new Vector2(blockSize * col, 3.6f);
+        block.transform.position = new Vector2(blockSize * col, 3.6f - blockSize * row);
+        if (hp != null) {
+            var controller = block.GetComponent<BlockController>();
+            controller.hp = hp.Value;
+            controller.UpdateHP();
+        }
         blocks.Add(block);
-        objectsDepths.Add(block, 1);
+        objectsPositions.Add(block, new int[2]{ col, row });
     }
 
 
-    void CreatePickup(int col) {
-        string sprite = pickupsProbPicker.Pick();
+    void CreatePickup(int col, int row = 0, int? idx = null) {
+        Sprite sprite;
+        if (idx != null)
+            sprite = pickupsSprites[idx.Value];
+        else {
+            string spriteName = pickupsProbPicker.Pick();
+            sprite = pickupsSprites.Where(s => s.name == spriteName).First();
+        }
+
         GameObject pickup = Instantiate(pickupPrefab);
-        pickup.GetComponent<SpriteRenderer>().sprite = pickupsSprites.Where(s => s.name == sprite).First();
-        pickup.transform.position = new Vector2(blockSize * col, 3.6f);
-        pickups.Add(pickup);
-        objectsDepths.Add(pickup, 1);
+        pickup.GetComponent<SpriteRenderer>().sprite = sprite;
         pickup.transform.localScale *= scaleVector;
+        pickup.transform.position = new Vector2(blockSize * col, 3.6f - blockSize * row);
+        pickups.Add(pickup);
+        objectsPositions.Add(pickup, new int[2] { col, row });
     }
 
 
@@ -193,18 +224,21 @@ public class GameManager : MonoBehaviour {
 
     public void NewLevel() {
         currentLevel++;
-        level.text = currentLevel.ToString();
+        levelText.text = currentLevel.ToString();
+        nBalls++;
         CheckGameOver();
         MoveObjects();
         SpawnRow();
         ResetThrowArea();
         if (currentLevel % 10 == 0)
             LaunchFirework();
+        UpdateHighscore();
+        saveButton.SetActive(true);
     }
 
 
-    void CheckGameOver() {            
-        if (objectsDepths.Any(x => x.Value == colMaxLimit)) {
+    void CheckGameOver() {
+        if (objectsPositions.Any(x => x.Value[1] == colMaxLimit - 1)) {
             //update health
             if (!classic)
                 UpdateHealth(-1);
@@ -224,7 +258,7 @@ public class GameManager : MonoBehaviour {
 
 
     void ClearLastRow() {
-        foreach (var block in objectsDepths.Where(x => x.Value == colMaxLimit).Select(x => x.Key).ToList()) {
+        foreach (var block in objectsPositions.Where(x => x.Value[1] == colMaxLimit - 1).Select(x => x.Key).ToList()) {
             RemoveBlock(block);
             Destroy(block);
         }
@@ -234,8 +268,8 @@ public class GameManager : MonoBehaviour {
     void MoveObjects() {
         //destroy pickup if depth is 6
         foreach (GameObject pickup in pickups.ToList()) {
-            if (objectsDepths[pickup] == pickupLimit) {
-                objectsDepths.Remove(pickup);
+            if (objectsPositions[pickup][1] == pickupLimit - 1) {
+                objectsPositions.Remove(pickup);
                 pickups.Remove(pickup);
                 Destroy(pickup);
             }
@@ -254,7 +288,7 @@ public class GameManager : MonoBehaviour {
             pickup.transform.Translate(new Vector2(0, -blockSize));
 
         //update depth
-        objectsDepths.Keys.ToList().ForEach(x => objectsDepths[x] += 1);
+        objectsPositions.Keys.ToList().ForEach(x => objectsPositions[x][1] += 1);
     }
 
 
@@ -279,13 +313,11 @@ public class GameManager : MonoBehaviour {
         MouseAreaController.ballCenter = center;
 
         balls.Clear();
-        nBalls++;
         for (int i = 0; i < nBalls * (doubleBalls ? 2 : 1); i++)
             balls.Add(Instantiate(ballPrefab));
         balls.ForEach(x => x.transform.localScale *= scaleVector);
         nBallsBoard = balls.Count();
         ballMoving = false;
-        doubleBalls = false;
         nBallsText.text = balls.Count.ToString();
         nBallsText.enabled = true;
     }
@@ -293,38 +325,20 @@ public class GameManager : MonoBehaviour {
 
     void LaunchFirework() {
         var firework = Instantiate(fireworkParticleSystem);
-        firework.transform.position = level.transform.position;
+        firework.transform.position = levelText.transform.position;
     }
 
 
     public void RemoveBlock(GameObject block) {
         blocks.Remove(block);
-        objectsDepths.Remove(block);
-    }
-
-
-    public void SkipLevel() {
-        foreach (GameObject ball in balls)
-            Destroy(ball);
-        nBallsBoard = 0;
-        NewLevel();
-    }
-
-
-    public void TurnSound() {
-        sound = !sound;
-
-        if (sound)
-            soundObject.GetComponent<SpriteRenderer>().sprite = soundOn;
-
-        else soundObject.GetComponent<SpriteRenderer>().sprite = soundOff;
+        objectsPositions.Remove(block);
     }
 
 
     public void ActivatePickup(GameObject p) {
         Destroy(p);
         pickups.Remove(p);
-        objectsDepths.Remove(p);
+        objectsPositions.Remove(p);
 
         string pickupName = p.GetComponent<SpriteRenderer>().sprite.name.Split('_')[0];
 
@@ -393,9 +407,129 @@ public class GameManager : MonoBehaviour {
         ballMoving = true;
         nBallsText.enabled = false;
         mouseAreaSprite.enabled = false;
+        doubleBalls = false;
+        saveButton.SetActive(false);
         foreach (GameObject b in balls.ToList()) {
             b.GetComponent<Rigidbody2D>().velocity = dir * ballSpeed * (doubleSpeed ? 2 : 1);
             yield return new WaitForSeconds(0.07f);
         }
+    }
+
+
+    public void SkipLevel() {
+        foreach (GameObject ball in balls)
+            Destroy(ball);
+        nBallsBoard = 0;
+        NewLevel();
+    }
+
+
+    public void ToggleSound() {
+        sound = !sound;
+        if (sound)
+            soundSpriteRenderer.sprite = soundOn;
+        else
+            soundSpriteRenderer.sprite = soundOff;
+    }
+
+
+    //STATE
+
+    void UpdateHighscore() {
+        int currentHighscore = 1;
+
+        if (PlayerPrefs.HasKey(gameMode + "_highscore"))
+            currentHighscore = PlayerPrefs.GetInt(gameMode + "_highscore");
+
+        if (currentLevel > currentHighscore)
+            PlayerPrefs.SetInt(gameMode + "_highscore", currentLevel);
+    }
+
+
+    public void SaveState() {
+        Dictionary<string, object> state = new Dictionary<string, object> {
+            { "currentLevel", currentLevel },
+            { "nBalls", nBalls },
+            { "doubleBalls", doubleBalls },
+            { "doubleSpeed", doubleSpeed },
+            { "health", health },
+            { "objects", new List<Dictionary<string, object>>() }
+        };
+
+        foreach (var keypair in objectsPositions) {
+            Dictionary<string, object> obj = new Dictionary<string, object>();
+            obj["type"] = ObjectType(keypair.Key);
+            obj["idx"] = ObjectIdx(keypair.Key);
+            obj["x"] = keypair.Value[0];
+            obj["y"] = keypair.Value[1];
+            obj["hp"] = (string) obj["type"] == "pickup" ? 0 : keypair.Key.GetComponent<BlockController>().hp;
+            ((List<Dictionary<string, object>>) state["objects"]).Add(obj);
+        }
+
+        string json = JsonConvert.SerializeObject(state);
+        PlayerPrefs.SetString("data", json);
+        PlayerPrefs.SetString("mode", gameMode);
+    }
+
+
+    void LoadState() {
+        gameMode = PlayerPrefs.GetString("mode");
+        string json = PlayerPrefs.GetString("data");
+        Dictionary<string, object> state = JsonConvert.DeserializeObject<Dictionary<string, object>>(json);
+        currentLevel = (int)(long) state["currentLevel"];
+        nBalls = (int)(long) state["nBalls"];
+        doubleBalls = (bool) state["doubleBalls"];
+        doubleSpeed = (bool) state["doubleSpeed"];
+        health = (int)(long) state["health"];
+
+        var listObjects = (Newtonsoft.Json.Linq.JArray) state["objects"];
+        foreach (var obj in listObjects) {
+            if (((string)obj["type"]) == "pickup")
+                CreatePickup((int)(long)obj["x"], (int)(long)obj["y"], (int)(long)obj["idx"]);
+            else
+                CreateBlock((int)(long)obj["x"], (int)(long)obj["y"], (int)(long)obj["idx"], (int)(long)obj["hp"]);
+        }
+
+        if (doubleSpeed)
+            pickupsProbPicker.Remove("2x-speed");
+        levelText.text = currentLevel.ToString();
+        if (gameMode != "classic" && gameMode != "hardcore")
+            healthText.text = health.ToString();
+        nBalls *= doubleBalls ? 2 : 1;
+        nBallsText.text = nBalls.ToString();
+        balls.Clear();
+        for (int i = 0; i < nBalls; i++)
+            balls.Add(Instantiate(ballPrefab));
+        nBallsBoard = nBalls;
+    }
+
+
+    private Dictionary<string, int> blocksIds;
+    private Dictionary<string, int> pickupsIds;
+
+
+    string ObjectType(GameObject obj) {
+        return obj.tag == "pickup" ? "pickup" : "block";
+    }
+
+
+    int ObjectIdx(GameObject obj) {
+        if (blocksIds == null) {
+            blocksIds = new Dictionary<string, int>();
+            for (int i = 0; i < blocksPrefabs.Count; i++)
+                blocksIds[blocksPrefabs[i].name] = i;
+        }
+
+        if (pickupsIds == null) {
+            pickupsIds = new Dictionary<string, int>();
+            for (int i = 0; i < pickupsSprites.Count; i++)
+                pickupsIds[pickupsSprites[i].name] = i;
+        }
+
+
+        if (ObjectType(obj) == "pickup")
+            return pickupsIds[obj.GetComponent<SpriteRenderer>().sprite.name];
+        else
+            return blocksIds[obj.name.Replace("(Clone)", "")];
     }
 }

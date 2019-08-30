@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class MainManager : MonoBehaviour {
 
@@ -33,30 +34,49 @@ public class MainManager : MonoBehaviour {
     }
 
 
-    public void LoadClassicGameScene() {
+    public void LoadClassicGameScene(bool continueGame = false) {
         GameManager.classic = true;
         GameManager.large = false;
+        GameManager.continueGame = continueGame;
         SceneManager.LoadScene("GameScene");
     }
 
 
-    public void LoadModernGameScene() {
+    public void LoadModernGameScene(bool continueGame = false) {
         GameManager.classic = false;
         GameManager.large = false;
+        GameManager.continueGame = continueGame;
         SceneManager.LoadScene("GameScene");
     }
 
 
-    public void LoadModernExtraGameScene() {
+    public void LoadModernExtraGameScene(bool continueGame = false) {
         GameManager.classic = false;
         GameManager.large = true;
+        GameManager.continueGame = continueGame;
         SceneManager.LoadScene("GameScene");
     }
 
-    public void LoadModernHardcoreGameScene() {
+    public void LoadModernHardcoreGameScene(bool continueGame = false) {
         GameManager.classic = false;
         GameManager.large = false;
         GameManager.hardcore = true;
+        GameManager.continueGame = continueGame;
         SceneManager.LoadScene("GameScene");
+    }
+
+
+    public void ContinueGame() {
+        if (PlayerPrefs.HasKey("data")) {
+            string gameMode = PlayerPrefs.GetString("mode");
+            if (gameMode == "classic")
+                LoadClassicGameScene(true);
+            else if (gameMode == "modern")
+                LoadModernGameScene(true);
+            else if (gameMode == "large")
+                LoadModernExtraGameScene(true);
+            else
+                LoadModernHardcoreGameScene(true);
+        }
     }
 }

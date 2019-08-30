@@ -1,10 +1,10 @@
-![](ReadmeResources/title.png)
+![](ReadmeFiles/title.png)
 
 An arcarde shooter game made with Unity. Play online [here](https://nuno-faria.itch.io/blockbreaker2).
 
 ## Demo
 
-<img src="ReadmeResources/demo.gif" width="350px"/>
+<img src="ReadmeFiles/demo.gif" width="350px"/>
 
 ## About
 
@@ -19,7 +19,7 @@ Try to reach the highest level possible. The game is over when a block reaches t
 
 ### Pickups
 
-<img src="ReadmeResources/pickups.png" width="350px"/>
+<img src="ReadmeFiles/pickups.png" width="350px"/>
 
 ### Controls
 
